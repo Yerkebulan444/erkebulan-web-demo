@@ -1,0 +1,13 @@
+{
+  "generated_at":"2025-11-17T00:00:00Z",
+  "signals":[
+    {"time":"2025-11-17T00:00:00Z","pair":"EURUSD","direction":"UP","confidence":4,"expiry":"5m"},
+    {"time":"2025-11-17T00:05:00Z","pair":"USDJPY","direction":"DOWN","confidence":3,"expiry":"5m"},
+    {"time":"2025-11-17T00:10:00Z","pair":"GBPUSD","direction":"UP","confidence":2,"expiry":"5m"}
+  ],
+  "model":{
+    "accuracy":0.72,
+    "last_trained":"2025-11-16T23:00:00Z",
+    "notes":"Auto-train snapshot"
+  }
+}

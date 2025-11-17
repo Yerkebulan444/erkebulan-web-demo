@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erkebulan AI Trading — Demo Dashboard</title>
+<style>
+body{font-family:Inter,Arial;margin:0;background:#0f1724;color:#e6eef8}
+.header{padding:20px;background:#07102b}
+.container{max-width:980px;margin:20px auto;padding:20px;background:#091427;border-radius:10px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+.h1{font-size:20px;margin:0 0 10px}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.card{flex:1;min-width:220px;padding:14px;background:#07192e;border-radius:8px}
+.btn{display:inline-block;padding:8px 12px;border-radius:6px;background:#0ea5a9;color:white;text-decoration:none;cursor:pointer}
+.signal-up{color:#16a34a;font-weight:700}
+.signal-down{color:#ef4444;font-weight:700}
+.small{font-size:12px;color:#9fb0c8}
+</style>
+</head>
+<body>
+<div class="header"><div style="max-width:980px;margin:0 auto;color:#cfeefd">Erkebulan AI Trading — Demo</div></div>
+<div class="container">
+  <div class="h1">Dashboard (Demo)</div>
+  <div class="row">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Model accuracy</strong><div class="small">latest snapshot</div></div>
+        <div id="accuracy" style="font-size:24px">—</div>
+      </div>
+      <hr>
+      <div><strong>Last trained</strong><div class="small" id="last_trained">—</div></div>
+    </div>
+    <div class="card">
+      <div><strong>Bot status</strong><div class="small">Aggressive / Stable</div></div>
+      <div style="margin-top:10px">
+        <button class="btn" id="btnStartAgg">Start Aggressive</button>
+        <button class="btn" id="btnStopAgg" style="background:#ef4444">Stop</button>
+      </div>
+      <div style="margin-top:10px" id="aggStatus" class="small">Status: stopped</div>
+    </div>
+    <div class="card">
+      <div><strong>Train model</strong><div class="small">One-click demo</div></div>
+      <div style="margin-top:10px">
+        <button class="btn" id="btnTrain">Train Model</button>
+      </div>
+      <div style="margin-top:10px" id="trainStatus" class="small">Idle</div>
+    </div>
+  </div>
+
+  <div style="margin-top:18px">
+    <div class="h1">Latest signals</div>
+    <div id="signals"></div>
+  </div>
+</div>
+
+<script>
+fetch('sample_signals.json').then(r=>r.json()).then(data=>{
+  document.getElementById('accuracy').innerText = Math.round(data.model.accuracy*100)+'%';
+  document.getElementById('last_trained').innerText = data.model.last_trained;
+  const s = data.signals.map(sig=>{
+    return '<div style="padding:8px;margin:8px 0;background:#051726;border-radius:8px;display:flex;justify-content:space-between"><div><strong>'+sig.pair+'</strong><div class="small">'+sig.time+' • expires '+sig.expiry+'</div></div><div style="text-align:right"><div class="'+(sig.direction==='UP'?'signal-up':'signal-down')+'">'+sig.direction+'</div><div class="small">conf '+sig.confidence+'/4</div></div></div>';
+  }).join('');
+  document.getElementById('signals').innerHTML = s;
+});
+
+function mockAction(elem, statusElem, startText, doneText){
+  elem.onclick = ()=>{
+    statusElem.innerText = startText;
+    setTimeout(()=>{ statusElem.innerText = doneText }, 2300);
+  };
+}
+
+mockAction(document.getElementById('btnTrain'), document.getElementById('trainStatus'), 'Training...', 'Model trained — snapshot saved');
+mockAction(document.getElementById('btnStartAgg'), document.getElementById('aggStatus'), 'Starting aggressive bot...', 'Aggressive bot running');
+mockAction(document.getElementById('btnStopAgg'), document.getElementById('aggStatus'), 'Stopping aggressive bot...', 'Aggressive bot stopped');
+</script>
+</body>
+</html>
