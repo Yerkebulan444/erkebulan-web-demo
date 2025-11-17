@@ -1,78 +1,193 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Erkebulan AI Trading — Demo Dashboard</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Erkebulan — Demo Dashboard</title>
+<link rel="manifest" href="/erkebulan-web-demo/manifest.json">
 <style>
-body{font-family:Inter,Arial;margin:0;background:#0f1724;color:#e6eef8}
-.header{padding:20px;background:#07102b}
-.container{max-width:980px;margin:20px auto;padding:20px;background:#091427;border-radius:10px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
-.h1{font-size:20px;margin:0 0 10px}
-.row{display:flex;gap:14px;flex-wrap:wrap}
-.card{flex:1;min-width:220px;padding:14px;background:#07192e;border-radius:8px}
-.btn{display:inline-block;padding:8px 12px;border-radius:6px;background:#0ea5a9;color:white;text-decoration:none;cursor:pointer}
-.signal-up{color:#16a34a;font-weight:700}
-.signal-down{color:#ef4444;font-weight:700}
-.small{font-size:12px;color:#9fb0c8}
+  :root{
+    --bg:#071029; --card:#0b1730; --muted:#93c5fd;
+    --accent:#06b6d4; --accent-2:#06b6d4; --glass: rgba(255,255,255,0.03);
+    --success:#34d399; --danger:#fb7185;
+    font-synthesis: none;
+  }
+  html,body{height:100%; margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background:linear-gradient(180deg,#041025 0%, #051026 100%); color:#e6f0ff}
+  .wrap{max-width:1100px;margin:26px auto;padding:18px}
+  header{display:flex;align-items:center;gap:16px}
+  .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#06b6d4,#0ea5a4);display:flex;align-items:center;justify-content:center;color:#021124;font-weight:700}
+  h1{font-size:20px;margin:0}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+  .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);backdrop-filter: blur(6px)}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:14px;margin-top:16px}
+  .row{display:flex;gap:12px}
+  .muted{color:var(--muted);font-size:13px}
+  .meta{display:flex;flex-direction:column;gap:8px}
+  .metric{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;background:var(--glass)}
+  .signals{max-height:420px;overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;text-align:left;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .badge{padding:6px 8px;border-radius:8px;font-weight:600}
+  .up{background:rgba(16,185,129,0.12);color:var(--success)}
+  .down{background:rgba(239,68,68,0.12);color:var(--danger)}
+  .install-btn{background:linear-gradient(90deg,#06b6d4,#06b6d4);color:#021124;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+  @media(max-width:880px){
+    .grid{grid-template-columns:1fr; }
+    .top{flex-direction:column;align-items:flex-start}
+  }
 </style>
 </head>
 <body>
-<div class="header"><div style="max-width:980px;margin:0 auto;color:#cfeefd">Erkebulan AI Trading — Demo</div></div>
-<div class="container">
-  <div class="h1">Dashboard (Demo)</div>
-  <div class="row">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><strong>Model accuracy</strong><div class="small">latest snapshot</div></div>
-        <div id="accuracy" style="font-size:24px">—</div>
+  <div class="wrap">
+    <header>
+      <div class="logo">EA</div>
+      <div>
+        <h1>Erkebulan AI Trading Suite — Demo Dashboard</h1>
+        <div class="muted">Hybrid ML · Auto-Train · Telegram SaaS · Demo UI</div>
       </div>
-      <hr>
-      <div><strong>Last trained</strong><div class="small" id="last_trained">—</div></div>
-    </div>
-    <div class="card">
-      <div><strong>Bot status</strong><div class="small">Aggressive / Stable</div></div>
-      <div style="margin-top:10px">
-        <button class="btn" id="btnStartAgg">Start Aggressive</button>
-        <button class="btn" id="btnStopAgg" style="background:#ef4444">Stop</button>
+      <div style="margin-left:auto">
+        <button id="installBtn" class="install-btn" style="display:none">Install App</button>
+        <a href="README.pdf" class="install-btn" style="margin-left:8px">Download Docs (PDF)</a>
       </div>
-      <div style="margin-top:10px" id="aggStatus" class="small">Status: stopped</div>
-    </div>
-    <div class="card">
-      <div><strong>Train model</strong><div class="small">One-click demo</div></div>
-      <div style="margin-top:10px">
-        <button class="btn" id="btnTrain">Train Model</button>
-      </div>
-      <div style="margin-top:10px" id="trainStatus" class="small">Idle</div>
-    </div>
-  </div>
+    </header>
 
-  <div style="margin-top:18px">
-    <div class="h1">Latest signals</div>
-    <div id="signals"></div>
+    <div class="top">
+      <div style="flex:1">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="muted">Model status</div>
+              <div style="font-size:18px;font-weight:700" id="modelName">—</div>
+              <div class="muted" id="modelMeta">Loading...</div>
+            </div>
+            <div class="meta" style="min-width:220px">
+              <div class="metric"><div class="muted">Accuracy</div><div id="accuracy">—</div></div>
+              <div class="metric"><div class="muted">Last trained</div><div id="lastTrained">—</div></div>
+              <div class="metric"><div class="muted">Rows in dataset</div><div id="rowsCount">—</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="muted">Latest signals (live demo)</div>
+              <div style="font-weight:700">Real-time sample</div>
+            </div>
+            <div class="muted" id="timeNow"></div>
+          </div>
+
+          <div class="signals" style="margin-top:12px">
+            <table id="signalsTable">
+              <thead>
+                <tr><th>Time</th><th>Pair</th><th>Dir</th><th>Conf</th><th>Expiry</th></tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="muted">Loading signals...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <div class="muted">Quick facts</div>
+          <ul style="margin:8px 0 0 18px">
+            <li>Dual bots: stable & impulse</li>
+            <li>Hybrid ML: RF + XGB + ensemble</li>
+            <li>Auto-train pipeline</li>
+            <li>Telegram SaaS + Stripe ready</li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="muted">Actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <a class="install-btn" id="openDemo" href="https://yerkebulan444.github.io/erkebulan-web-demo/" target="_blank">Open Live Demo</a>
+            <a class="install-btn" id="openRepo" href="https://github.com/Yerkebulan444/erkebulan-web-demo" target="_blank">View on GitHub</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer style="margin-top:18px;color:rgba(255,255,255,0.6);font-size:13px">
+      © 2025 Erkebulan AI — Demo only. Full source & models delivered after contract.
+    </footer>
   </div>
-</div>
 
 <script>
-fetch('sample_signals.json').then(r=>r.json()).then(data=>{
-  document.getElementById('accuracy').innerText = Math.round(data.model.accuracy*100)+'%';
-  document.getElementById('last_trained').innerText = data.model.last_trained;
-  const s = data.signals.map(sig=>{
-    return '<div style="padding:8px;margin:8px 0;background:#051726;border-radius:8px;display:flex;justify-content:space-between"><div><strong>'+sig.pair+'</strong><div class="small">'+sig.time+' • expires '+sig.expiry+'</div></div><div style="text-align:right"><div class="'+(sig.direction==='UP'?'signal-up':'signal-down')+'">'+sig.direction+'</div><div class="small">conf '+sig.confidence+'/4</div></div></div>';
-  }).join('');
-  document.getElementById('signals').innerHTML = s;
+/* ---- Install prompt handling (PWA) ---- */
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = 'inline-block';
+});
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.style.display = 'none';
 });
 
-function mockAction(elem, statusElem, startText, doneText){
-  elem.onclick = ()=>{
-    statusElem.innerText = startText;
-    setTimeout(()=>{ statusElem.innerText = doneText }, 2300);
-  };
+/* ---- Utility to format time ---- */
+function fmtTime(iso){
+  try{ const d=new Date(iso); return d.toLocaleString(); }catch(e){ return iso; }
 }
 
-mockAction(document.getElementById('btnTrain'), document.getElementById('trainStatus'), 'Training...', 'Model trained — snapshot saved');
-mockAction(document.getElementById('btnStartAgg'), document.getElementById('aggStatus'), 'Starting aggressive bot...', 'Aggressive bot running');
-mockAction(document.getElementById('btnStopAgg'), document.getElementById('aggStatus'), 'Stopping aggressive bot...', 'Aggressive bot stopped');
+/* ---- Load model_meta.json if present ---- */
+async function loadModelMeta(){
+  const metaUrl = 'model_meta.json';
+  try{
+    const res = await fetch(metaUrl, {cache:'no-store'});
+    if(!res.ok) throw new Error('no meta');
+    const meta = await res.json();
+    document.getElementById('modelName').textContent = meta.model_name || 'Ensemble Model';
+    document.getElementById('accuracy').textContent = (meta.accuracy? (meta.accuracy*100).toFixed(2)+'%' : 'N/A');
+    document.getElementById('lastTrained').textContent = meta.last_trained ? fmtTime(meta.last_trained) : 'N/A';
+    document.getElementById('rowsCount').textContent = meta.rows || meta.row_count || 'N/A';
+    document.getElementById('modelMeta').textContent = meta.note || meta.notes || '';
+  }catch(err){
+    // fallback if no meta available
+    document.getElementById('modelName').textContent = 'Model meta not available';
+    document.getElementById('accuracy').textContent = '—';
+    document.getElementById('lastTrained').textContent = '—';
+    document.getElementById('rowsCount').textContent = '—';
+    document.getElementById('modelMeta').textContent = 'This demo displays sample signals only.';
+  }
+}
+
+/* ---- Load sample_signals.json and render ---- */
+async function loadSignals(){
+  const url='sample_signals.json';
+  try{
+    const r=await fetch(url,{cache:'no-store'});
+    if(!r.ok) throw new Error('no signals');
+    const j=await r.json();
+    const tbody=document.querySelector('#signalsTable tbody');
+    tbody.innerHTML = '';
+    const now=new Date(); document.getElementById('timeNow').textContent = now.toLocaleString();
+    (j.signals||[]).slice(0,20).forEach(s=>{
+      const tr=document.createElement('tr');
+      const dirBadge = `<span class="badge ${s.direction==='UP'?'up':'down'}">${s.direction}</span>`;
+      tr.innerHTML = `<td>${fmtTime(s.time)}</td><td>${s.pair}</td><td>${dirBadge}</td><td>${s.confidence}/4</td><td>${s.expiry}</td>`;
+      tbody.appendChild(tr);
+    });
+    if(!(j.signals||[]).length){
+      tbody.innerHTML = '<tr><td colspan="5" class="muted">No signals available</td></tr>';
+    }
+  }catch(e){
+    document.querySelector('#signalsTable tbody').innerHTML = '<tr><td colspan="5" class="muted">Demo signals not found</td></tr>';
+  }
+}
+
+/* ---- Auto refresh signals every 10s ---- */
+loadModelMeta();
+loadSignals();
+setInterval(loadSignals, 10000);
 </script>
 </body>
 </html>
